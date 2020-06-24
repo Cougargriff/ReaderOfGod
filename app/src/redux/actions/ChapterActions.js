@@ -20,8 +20,7 @@ const getPage = (num) => {
 };
 
 function requestPage(num) {
-  console.log("Fetching chapter " + num);
-  getPage(num).then((page) => {
+  return getPage(num).then((page) => {
     var soup = new JSSoup(page);
     const soupFind = soup.findAll("img", { class: "_images" });
 
@@ -29,6 +28,7 @@ function requestPage(num) {
     soupFind.map((tag) => {
       new_src_urls.push(tag.attrs["data-url"]);
     });
+    return new_src_urls;
   });
 }
 
@@ -54,6 +54,8 @@ const chapterError = (num) => {
   };
 };
 
-export const fetchChapter = (num) => (dispatch) => {
+export const fetchChapter = (num) => async (dispatch) => {
   dispatch(requestChapter(num));
+  const urls = await requestPage(num);
+  dispatch(receiveChapter(urls, num));
 };
