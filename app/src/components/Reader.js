@@ -1,10 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-<<<<<<< Updated upstream
-
-function Reader(props) {
-  return <h1>READER</h1>;
-=======
 import JSSoup from "jssoup";
 
 const ChapterContainer = styled.div`
@@ -57,7 +52,7 @@ function Reader(props) {
       });
 
       setLoaded(true);
-      setUrls(new_src_urls);
+      setUrls([...new_src_urls]);
       console.log(src_urls);
     });
   }
@@ -82,7 +77,6 @@ function Reader(props) {
       )}
     </ReaderContainer>
   );
->>>>>>> Stashed changes
 }
 
 export default Reader;
