@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Component } from "react";
 import styled from "styled-components";
-import JSSoup from "jssoup";
+import { connect } from "react-redux";
+import { fetchChapter } from "../redux/actions/ChapterActions";
 
 const ChapterContainer = styled.div`
   display: flex;
@@ -12,71 +13,43 @@ const ReaderContainer = styled.div`
   display: inline-block;
 `;
 
-const chapterURL = (num) => {
-  const proxyurl = "https://cors-anywhere.herokuapp.com/";
-
-  return (
-    proxyurl +
-    "https://www.webtoons.com/en/fantasy/tower-of-god/season-1-ep-0/viewer?title_no=95&episode_no=" +
-    num
-  );
-};
-
-const getPage = (num) => {
-  return fetch(chapterURL(num)).then((data) => data.text());
-};
-
-function Reader(props) {
-  const [chapterNum, setChapter] = useState(1);
-  const [loaded, setLoaded] = useState(false);
-  const [src_urls, setUrls] = useState([]);
-
-  useEffect(() => {
-    window.addEventListener("scroll", function () {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        setChapter(chapterNum + 1);
-      }
-    });
-  }, []);
-  useEffect(requestPage, [chapterNum]);
-
-  function requestPage(num = chapterNum) {
-    console.log("Fetching chapter " + chapterNum);
-    getPage(num).then((page) => {
-      var soup = new JSSoup(page);
-      const soupFind = soup.findAll("img", { class: "_images" });
-
-      let new_src_urls = [...src_urls];
-      soupFind.map((tag) => {
-        new_src_urls.push(tag.attrs["data-url"]);
-      });
-
-      setLoaded(true);
-      setUrls([...new_src_urls]);
-      console.log(src_urls);
-    });
+class Reader extends Component {
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch(fetchChapter(this.props.currentChapter + 1));
   }
 
-  function getImages() {
+  getImages = () => {
     return (
       <ChapterContainer>
-        {src_urls.map((url) => {
+        {this.props.urls.map((url) => {
           return <img src={url} />;
         })}
       </ChapterContainer>
     );
-  }
+  };
 
-  return (
-    <ReaderContainer>
-      <h1>READER</h1>
-      {loaded ? (
-        getImages()
-      ) : (
-        <ChapterContainer> Loading Chapter... </ChapterContainer>
-      )}
-    </ReaderContainer>
-  );
+  render() {
+    const loaded = false;
+    return (
+      <ReaderContainer>
+        <h1>READER</h1>
+        {this.props.isLoadedChapter ? (
+          this.getImages()
+        ) : (
+          <ChapterContainer> Loading Chapter... </ChapterContainer>
+        )}
+      </ReaderContainer>
+    );
+  }
 }
 
-export default Reader;
+function mapStateToProps(state) {
+  return {
+    currentChapter: state.ChapterReducer.currentChapter,
+    urls: state.ChapterReducer.urls,
+    isLoadedChapter: state.ChapterReducer.isLoadedChapter,
+  };
+}
+
+export default connect(mapStateToProps)(Reader);
