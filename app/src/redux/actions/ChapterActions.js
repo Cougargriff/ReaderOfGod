@@ -15,21 +15,30 @@ const chapterURL = (num) => {
   );
 };
 
-const getPage = (num) => {
-  return fetch(chapterURL(num)).then((data) => data.text());
+const getPage = (num, dispatch) => {
+  return fetch(chapterURL(num))
+    .then((res) => (res.ok ? res : Promise.reject(res)))
+    .then((data) => data.text())
+    .catch((error) => {
+      dispatch(chapterError(num));
+    });
 };
 
-function requestPage(num) {
-  return getPage(num).then((page) => {
-    var soup = new JSSoup(page);
-    const soupFind = soup.findAll("img", { class: "_images" });
+function requestPage(num, dispatch) {
+  return getPage(num, dispatch)
+    .then((page) => {
+      var soup = new JSSoup(page);
+      const soupFind = soup.findAll("img", { class: "_images" });
 
-    let new_src_urls = [];
-    soupFind.map((tag) => {
-      new_src_urls.push(tag.attrs["data-url"]);
+      let new_src_urls = [];
+      soupFind.map((tag) => {
+        new_src_urls.push(tag.attrs["data-url"]);
+      });
+      return new_src_urls;
+    })
+    .catch((error) => {
+      dispatch(chapterError(num));
     });
-    return new_src_urls;
-  });
 }
 
 const requestChapter = (num) => {
@@ -56,6 +65,6 @@ const chapterError = (num) => {
 
 export const fetchChapter = (num) => async (dispatch) => {
   dispatch(requestChapter(num));
-  const urls = await requestPage(num);
+  const urls = await requestPage(num, dispatch);
   dispatch(receiveChapter(urls, num));
 };

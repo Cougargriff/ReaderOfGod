@@ -14,12 +14,29 @@ const ReaderContainer = styled.div`
 `;
 
 class Reader extends Component {
-  componentDidMount() {
+  getNextChapter() {
     const { dispatch } = this.props;
-    dispatch(fetchChapter(this.props.currentChapter + 1));
+    if (this.props.isFetchingChapter) {
+    } else {
+      dispatch(fetchChapter(this.props.currentChapter + 1));
+    }
   }
 
-  getImages = () => {
+  componentWillMount() {
+    var self = this;
+    window.addEventListener("scroll", function () {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        console.log("you're at the bottom of the page");
+        self.getNextChapter();
+      }
+    });
+  }
+
+  componentDidMount() {
+    this.getNextChapter();
+  }
+
+  getImages() {
     return (
       <ChapterContainer>
         {this.props.urls.map((url) => {
@@ -27,7 +44,7 @@ class Reader extends Component {
         })}
       </ChapterContainer>
     );
-  };
+  }
 
   render() {
     const loaded = false;
@@ -49,6 +66,7 @@ function mapStateToProps(state) {
     currentChapter: state.ChapterReducer.currentChapter,
     urls: state.ChapterReducer.urls,
     isLoadedChapter: state.ChapterReducer.isLoadedChapter,
+    isFetchingChapter: state.ChapterReducer.isFetchingChapter,
   };
 }
 
