@@ -15,8 +15,14 @@ const chapterURL = (num) => {
   );
 };
 
+const userHeader = new Headers({
+  "User-Agent": "Mozilla/5.0",
+});
+
 const getPage = (num, dispatch) => {
-  return fetch(chapterURL(num))
+  return fetch(chapterURL(num), {
+    headers: userHeader,
+  })
     .then((res) => (res.ok ? res : Promise.reject(res)))
     .then((data) => data.text())
     .catch((error) => {
