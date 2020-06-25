@@ -14,7 +14,6 @@ function SectionsContainer(props) {
   return (
     <div>
       {props.components.map((comp, index) => {
-        console.log(props.components);
         return <Container id={index}>{comp()}</Container>;
       })}
     </div>
