@@ -1,2 +1,2 @@
-# ReaderOfGod
+# Tower Reader
 Tower Of God Scraper
