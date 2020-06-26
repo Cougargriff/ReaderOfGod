@@ -1,7 +1,9 @@
-import React, { useState, useEffect, Component } from "react";
+import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { fetchChapter } from "../redux/actions/ChapterActions";
+import { fetchChapter, fetchLinks } from "../redux/actions/ChapterActions";
+
+const proxyurl = "https://cors-anywhere.herokuapp.com/";
 
 const ChapterContainer = styled.div`
   display: flex;
@@ -22,7 +24,13 @@ class Reader extends Component {
     }
   }
 
-  componentWillMount() {
+  getLinks() {
+    const { dispatch } = this.props;
+    dispatch(fetchLinks());
+  }
+
+  componentDidMount() {
+    //this.getNextChapter();
     var self = this;
     window.addEventListener("scroll", function () {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
@@ -30,24 +38,47 @@ class Reader extends Component {
         self.getNextChapter();
       }
     });
+    this.getLinks();
   }
 
-  componentDidMount() {
-    this.getNextChapter();
+  /* attempt to bypass 403 */
+  fetchImage403(url) {
+    /* fetch image with different headers */
+
+    const userHeader = new Headers({
+      "User-Agent":
+        "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0",
+      Referer: "https://aax-us-pdx.amazon.adsystem.com/",
+      Server: "Apache",
+      "access-control-origin-allow": "*",
+      Host: "mwebtoon-phinf.pstatic.net",
+      Accept: "image/webp.*/*",
+      Connection: "keep-alive",
+    });
+
+    fetch(proxyurl + url, {
+      headers: userHeader,
+    }).then((data) => console.log(data));
   }
 
   getImages() {
     return (
       <ChapterContainer>
-        {this.props.urls.map((url) => {
-          return <img src={url} />;
+        {this.props.urls.map((url, index) => {
+          return (
+            <img
+              key={this.props.currentChapter.toString() + index.toString()}
+              src={url}
+              alt=""
+              url={url}
+            />
+          );
         })}
       </ChapterContainer>
     );
   }
 
   render() {
-    const loaded = false;
     return (
       <ReaderContainer>
         <h1>READER</h1>

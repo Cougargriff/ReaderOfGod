@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import "./App.css";
 import Reader from "./components/Reader";
 import SectionsContainer from "./components/SectionsContainer";
@@ -12,7 +11,7 @@ function App() {
   return (
     <div className="App">
       <SectionsContainer components={sections} />
-      <Reader/>
+      <Reader />
     </div>
   );
 }
